@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tallfamilier</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#111827; --text:#e5e7eb; --muted:#9aa3b2; --ring:#334155;
+    --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; --bar:#1f2937;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1600px 600px at 50% -20%, #1e293b33, transparent 50%), var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  h1{font-size:clamp(28px,5vw,46px);font-weight:900;text-align:center;margin:16px 0 4px;color:#fcd34d}
+  .wrap{max-width:1180px;margin:0 auto;padding:14px;display:grid;gap:14px}
+  .card{background:rgba(17,24,39,.9);border:1px solid var(--ring);border-radius:14px;padding:12px 14px}
+  .top{display:grid;gap:12px;grid-template-columns:1.1fr 2.1fr 1.2fr;align-items:start}
+  @media (max-width:1100px){.top{grid-template-columns:1fr 1fr}}
+  @media (max-width:760px){.top{grid-template-columns:1fr}}
+
+  .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .stat .label{font-size:12px;color:var(--muted)} .stat .val{font-size:20px;font-weight:700}
+  .pers{margin-top:6px;font-size:13px;color:#cbd5e1}
+  .feedback{margin-top:6px;font-size:14px;color:#eab308}
+
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .chipgroup{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .chip{border:1px solid var(--ring);background:#0b1223;color:#e5e7eb;border-radius:999px;padding:6px 10px;cursor:pointer;font-weight:700}
+  .chip.active{border-color:#22c55e;box-shadow:0 0 0 2px #09321b inset}
+  .caps{font-variant:all-small-caps;letter-spacing:.5px;color:var(--muted)}
+
+  .btn{background:#0b1223;color:#e5e7eb;border:1px solid var(--ring);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+  .btn.primary{border-color:#22c55e}.btn.warn{border-color:#f59e0b}.btn.stop{border-color:#ef4444}
+  .btn.big{font-size:clamp(18px,3vw,24px);padding:14px 22px;border-width:2px}
+
+  .time-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .time-big{font-variant-numeric:tabular-nums;font-size:26px;font-weight:800}
+  .progress{height:12px;background:var(--bar);border-radius:999px;overflow:hidden;outline:1px solid #334155}
+  .bar{height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width .2s ease}
+
+  .stage{min-height:140px;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(1200px 300px at 50% -40%, #22c55e1f, transparent 60%);padding:8px}
+  .eq{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;font-size:clamp(28px,5vw,56px);user-select:none}
+  .cell{display:inline-flex;align-items:center;justify-content:center;min-width:1.2em}
+  .op,.eqsign{opacity:.95}
+  .numbox{display:inline-flex;align-items:center;justify-content:center;width:5.2ch;padding:.45em .85em;height:2.1em;border-radius:14px;border:3px solid #374151;font-weight:900;background:#0b1223;color:#e5e7eb;outline:none;text-align:center;font-size:1em}
+  .numbox.ok{border-color:#22c55e;background:#063019;color:#a7f3d0}
+  .numbox.err{border-color:#ef4444;background:#3b0a0a;color:#fecaca}
+  .numbox::-webkit-outer-spin-button,.numbox::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input.numbox{-moz-appearance:textfield}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;background:#0b1223;border-radius:12px;overflow:hidden}
+  thead th{text-align:left;padding:10px;background:#0f172a;color:#cbd5e1;border-bottom:1px solid #22314a;position:sticky;top:0;z-index:1}
+  tbody td{padding:8px 10px;border-bottom:1px solid #1f2a3d}
+  .right{text-align:right}
+  .bank{font-weight:700;color:#86efac}
+  .rpm-strong{font-weight:800;color:#fcd34d}
+
+  .modebar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .modebar .chip{padding:8px 12px}
+
+  .fam-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .badge{background:#0b1223;border:1px solid #334155;border-radius:999px;padding:4px 8px;font-size:12px;color:#cbd5e1}
+  .fam-section{border-top:1px solid #22314a;padding-top:8px;margin-top:10px}
+  .fam-section h4{margin:4px 0 8px;font-size:13px;color:#cbd5e1;font-weight:900;letter-spacing:.3px}
+  .fam-grid{display:grid;gap:6px;grid-template-columns:repeat(8,minmax(0,1fr))}
+  @media (max-width:1000px){.fam-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+  @media (max-width:700px){.fam-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .fam{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid #334155;border-radius:10px;background:#0b1223;cursor:pointer}
+  .fam input{accent-color:#22c55e;width:16px;height:16px}
+  .fam span{font-weight:700}
+
+  .swatch{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.35) inset}
+  .swatch.kongle{background:#16a34a}.swatch.furu{background:#3b82f6}.swatch.gran{background:#f59e0b}.swatch.bjork{background:#ef4444}
+
+  .diff{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:900;letter-spacing:.3px;box-shadow:0 0 0 1px rgba(0,0,0,.25) inset}
+  .diff.kongle{background:#166534;border:1px solid #22c55e;color:#f0fff4}
+  .diff.furu{background:#1e3a8a;border:1px solid #60a5fa;color:#eef2ff}
+  .diff.gran{background:#92400e;border:1px solid #f59e0b;color:#fff7ed}
+  .diff.bjork{background:#7f1d1d;border:1px solid #ef4444;color:#fee2e2}
+
+  .keypad{display:grid;gap:8px;grid-template-columns:repeat(7,minmax(0,1fr))}
+  @media (max-width:560px){.keypad{grid-template-columns:repeat(5,minmax(0,1fr))}}
+  .key{background:#0b1223;border:1px solid var(--ring);border-radius:12px;padding:12px 0;font-weight:900;font-size:18px;cursor:pointer;color:#e5e7eb}
+  .key:active{transform:translateY(1px) scale(.99)}
+
+  /* feilbanner */
+  #errbar{position:fixed;left:0;right:0;top:0;background:#7f1d1d;color:#fee2e2;border-bottom:2px solid #ef4444;
+    padding:8px 12px;font-size:13px;display:none;z-index:9999}
+</style>
+</head>
+<body>
+<div id="errbar"></div>
+<h1>Tallfamilier</h1>
+<div class="wrap">
+
+  <!-- TOPP -->
+  <div class="top">
+    <div class="card">
+      <div class="stats">
+        <div class="stat"><div class="label">Bank (samlet)</div><div id="bankTotal" class="val">0</div></div>
+        <div class="stat"><div class="label">Riktige (nåværende)</div><div id="correct" class="val">0</div></div>
+        <div class="stat"><div class="label">RPM (riktige/min)</div><div id="rpm" class="val">0.0</div></div>
+      </div>
+      <div class="pers">Pers RPM: <b id="bestRpm">0.0</b></div>
+      <div id="runFeedback" class="feedback"></div>
+      <div class="row" style="background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px">
+        <span>Mål (riktige/min):</span>
+        <input id="goalInput" type="number" min="1" max="200" step="1" style="width:110px;background:#0b1223;color:#e5e7eb;border:1px solid #334155;border-radius:8px;padding:6px 8px">
+        <span id="goalState" style="display:none;color:#16a34a;font-weight:800">Mål nådd</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="time-row">
+        <div class="row">
+          <span class="caps">omgangens varighet</span>
+          <div id="durChips" class="chipgroup" role="group" aria-label="Omgangens varighet">
+            <button class="chip" data-dur="0"  type="button">Stoppeklokke</button>
+            <button class="chip" data-dur="10" type="button">10 s</button>
+            <button class="chip" data-dur="30" type="button">30 s</button>
+            <button class="chip active" data-dur="60" type="button">1 min</button>
+            <button class="chip" data-dur="120" type="button">2 min</button>
+          </div>
+        </div>
+        <div class="time-big" id="timeLeft">01:00</div>
+      </div>
+      <div class="progress" id="progressWrap"><div id="timeBar" class="bar"></div></div>
+    </div>
+
+    <div class="card" style="display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
+      <button id="pauseBtn" class="btn warn" type="button">Pause / Fortsett (Space)</button>
+      <button id="stopBtn"  class="btn stop" type="button">Stopp (S)</button>
+      <button id="resetBtn" class="btn stop" type="button" title="Slett alle lagrede resultater">Slett alt</button>
+    </div>
+  </div>
+
+  <!-- MODUS -->
+  <div class="card">
+    <div class="modebar">
+      <span class="caps">modus (spill)</span>
+      <button class="chip active" id="modeAdd"  data-mode="add" type="button">Pluss/Minus</button>
+      <button class="chip" id="modeMul" data-mode="mul" type="button">Gange/Dele</button>
+      <label style="display:flex;align-items:center;gap:8px;margin-left:auto">
+        <input id="brainrotToggle" type="checkbox" checked> Brainrot-tilbakemelding
+      </label>
+    </div>
+  </div>
+
+  <!-- FAMILIER -->
+  <div class="card">
+    <div class="fam-tools">
+      <span class="caps">familier</span>
+      <button id="famAll" class="btn" type="button">Velg alle</button>
+      <button id="famNone" class="btn" type="button">Tøm</button>
+      <button id="famKongle" class="btn" type="button">Alle Kongle</button>
+      <button id="famFuru" class="btn" type="button">Alle Furu</button>
+      <button id="famGran" class="btn" type="button">Alle Gran</button>
+      <button id="famBjork" class="btn" type="button">Alle Bjørk</button>
+      <span class="badge">Valgt: <span id="famCount">0</span></span>
+
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="caps">vanskelighet</span>
+        <span class="diff kongle">Kongle</span>
+        <span class="diff furu">Furu</span>
+        <span class="diff gran">Gran</span>
+        <span class="diff bjork">Bjørk</span>
+      </div>
+    </div>
+    <div id="famSections"></div>
+  </div>
+
+  <!-- SPILL -->
+  <div class="card">
+    <div class="stage">
+      <div id="eq" class="eq">
+        <span class="cell" style="font-size:clamp(18px,3vw,30px);opacity:.9">
+          Velg tallfamilie(er) og trykk Start
+        </span>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:8px">
+      <button id="startBtn" class="btn primary big" type="button">Start (Enter)</button>
+    </div>
+  </div>
+
+  <!-- MOBIL-TASTATUR -->
+  <div class="card">
+    <div style="font-weight:800;margin-bottom:8px">Tastatur (mobil)</div>
+    <div id="keypad" class="keypad"></div>
+  </div>
+
+  <!-- BONUS -->
+  <div class="card">
+    <div style="font-weight:800;margin-bottom:8px">Hastighet → Ekstrapoeng</div>
+    <div style="display:grid;gap:8px;grid-template-columns:repeat(2,minmax(0,1fr))">
+      <div class="row" style="justify-content:space-between;background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px"><span>≥ 10 RPM</span><span>+ 10</span></div>
+      <div class="row" style="justify-content:space-between;background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px"><span>&gt; 20 RPM</span><span>+ 30</span></div>
+      <div class="row" style="justify-content:space-between;background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px"><span>&gt; 30 RPM</span><span>+ 50</span></div>
+      <div class="row" style="justify-content:space-between;background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px"><span>&gt; 40 RPM</span><span>+ 70</span></div>
+      <div class="row" style="justify-content:space-between;background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px"><span>&gt; 50 RPM</span><span>+ 100</span></div>
+      <div class="row" style="justify-content:space-between;background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px"><span>&gt; 60 RPM</span><span>+ 200</span></div>
+    </div>
+    <div style="color:#9aa3b2;font-size:13px;margin-top:6px">Bank per omgang = gulv(RPM) + bonus</div>
+  </div>
+
+  <!-- RESULTATER -->
+  <div class="card">
+    <div style="font-weight:800;margin-bottom:8px">Resultatliste (alle omganger)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Tidspunkt</th>
+          <th>Modus</th>
+          <th>Familier</th>
+          <th class="right">Riktige</th>
+          <th class="right">Feil</th>
+          <th class="right">Økt (s)</th>
+          <th class="right rpm-strong">RPM</th>
+          <th class="right">Bonus</th>
+          <th class="right">Bank +</th>
+          <th class="right">Bank (sum)</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer style="text-align:center;color:#9aa3b2;padding:14px">
+  Hvis du har forslag til forbedringer, ta kontakt på
+  <a href="mailto:dag.gladmann.sorheim@gmail.com">dag.gladmann.sorheim@gmail.com</a>
+</footer>
+
+<!-- 3s nedtelling -->
+<div id="overlay" style="position:fixed;inset:0;display:none;place-items:center;background:rgba(2,6,23,.65);z-index:100;backdrop-filter:blur(3px)">
+  <div id="count" style="font-size:clamp(42px,10vw,120px);font-weight:900">3</div>
+</div>
+
+<!-- Brainrot -->
+<div id="sigmaBackdrop" style="display:none;place-items:center;position:fixed;inset:0;background:rgba(2,6,23,.6);z-index:200;backdrop-filter:blur(2px);">
+  <div id="sigmaSign" style="background:#0b1223;border:2px solid #334155;border-radius:18px;padding:22px 26px;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.6);">
+    <div id="sigmaText" style="font-size:clamp(26px, 5vw, 48px);font-weight:900;line-height:1.15;">Bra jobba!</div>
+    <div id="sigmaHint" style="margin-top:6px;color:#9aa3b2;font-size:13px">Klikk for å lukke</div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ========= Hard fail banner ========= */
+const errbar=document.getElementById('errbar');
+window.addEventListener('error', (ev)=>{
+  errbar.style.display='block';
+  errbar.textContent='Script-feil: ' + (ev.message||'ukjent feil') + ' (se konsoll for detaljer)';
+});
+const log = (...a)=>console.log('[TF]',...a);
+
+/* ========= Helpers ========= */
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const shuffle=a=>{ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const fmtTime=s=>{ if(s===null) return '—'; s=Math.max(0,Math.ceil(s)); return `${pad(Math.floor(s/60))}:${pad(s%60)}`; };
+const ts=()=>{ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
+const bonusForRPM=r=> r>60?200:r>50?100:r>40?70:r>30?50:r>20?30:r>=10?10:0;
+
+/* ========= Families ========= */
+// Add: c=2..20, a<=b
+const FAMS_ADD=[];
+for(let c=2;c<=20;c++){ for(let a=1;a<=Math.floor(c/2);a++){ const b=c-a; FAMS_ADD.push({a,b,c,id:`A:${a}-${b}-${c}`}); } }
+// Mul: 1..12, a<=b
+const FAMS_MUL=[];
+for(let a=1;a<=12;a++){ for(let b=a;b<=12;b++){ const c=a*b; FAMS_MUL.push({a,b,c,id:`M:${a}-${b}-${c}`}); } }
+
+const familyItemsAdd=f=>[
+  {op:'+', pattern:[f.a,f.b,f.c], fam:f.id},
+  {op:'+', pattern:[f.b,f.a,f.c], fam:f.id},
+  {op:'-', pattern:[f.c,f.a,f.b], fam:f.id},
+  {op:'-', pattern:[f.c,f.b,f.a], fam:f.id},
+];
+const familyItemsMul=f=>[
+  {op:'×', pattern:[f.a,f.b,f.c], fam:f.id},
+  {op:'×', pattern:[f.b,f.a,f.c], fam:f.id},
+  {op:'÷', pattern:[f.c,f.a,f.b], fam:f.id},
+  {op:'÷', pattern:[f.c,f.b,f.a], fam:f.id},
+];
+const famLabel=id=>id.slice(2).split('-').join(' ');
+
+/* ========= Difficulty ========= */
+const DIFF_LABEL={kongle:'Kongle', furu:'Furu', gran:'Gran', bjork:'Bjørk'};
+const diffForAdd=c => c<=6?'kongle':c<=10?'furu':c<=15?'gran':'bjork';
+const diffForMul=z => z<=25?'kongle':z<=64?'furu':z<=100?'gran':'bjork';
+const diffForFamily=(f,isAdd)=> ({key: isAdd?diffForAdd(f.c):diffForMul(f.c), label: DIFF_LABEL[isAdd?diffForAdd(f.c):diffForMul(f.c)]});
+const DIFF_ORDER=['kongle','furu','gran','bjork'];
+
+/* ========= Storage ========= */
+const KEY='tallfamilier_rescue_v1';
+let bankTotal=0, bestRPM=0, goalRPM=null, results=[];
+let mode='add', brainrotOn=true;
+let selectedAdd=new Set(), selectedMul=new Set();
+
+function loadStore(){
+  try{
+    const raw=localStorage.getItem(KEY); if(!raw) return;
+    const o=JSON.parse(raw);
+    bankTotal=+o.bankTotal||0; bestRPM=+o.bestRPM||0; goalRPM=(o.goalRPM==null?null:+o.goalRPM);
+    results=Array.isArray(o.results)?o.results:[];
+    mode=(o.mode==='mul')?'mul':'add'; brainrotOn=o.brainrotOn!==false;
+    selectedAdd=new Set(o.selAdd||[]); selectedMul=new Set(o.selMul||[]);
+  }catch(e){ console.warn(e); }
+}
+function saveStore(){
+  try{
+    localStorage.setItem(KEY, JSON.stringify({
+      bankTotal,bestRPM,goalRPM,results,mode,brainrotOn,
+      selAdd:[...selectedAdd], selMul:[...selectedMul]
+    }));
+  }catch(e){ console.warn(e); }
+}
+
+/* ========= Families UI ========= */
+const famSections=$('famSections'), famCount=$('famCount');
+const familiesForMode = m => m==='add'?FAMS_ADD:FAMS_MUL;
+const selectionSet     = () => mode==='add'?selectedAdd:selectedMul;
+const itemsForFamily   = f => mode==='add'?familyItemsAdd(f):familyItemsMul(f);
+
+function renderFamilySections(){
+  const list=familiesForMode(mode);
+  const groups={kongle:[],furu:[],gran:[],bjork:[]};
+  list.forEach(f=>groups[diffForFamily(f,mode==='add').key].push(f));
+  const sel=selectionSet();
+
+  famSections.innerHTML='';
+  for(const k of DIFF_ORDER){
+    const arr=groups[k]; if(!arr.length) continue;
+    const sec=document.createElement('div'); sec.className='fam-section';
+    const h=document.createElement('h4'); h.innerHTML=`<span class="diff ${k}">${DIFF_LABEL[k]}</span>`;
+    const grid=document.createElement('div'); grid.className='fam-grid';
+    for(const f of arr){
+      const lab=document.createElement('label'); lab.className='fam';
+      lab.innerHTML=`<span class="swatch ${k}" aria-hidden="true"></span>
+        <input type="checkbox" ${sel.has(f.id)?'checked':''} data-id="${f.id}">
+        <span>${f.a} ${f.b} ${f.c}</span>`;
+      grid.appendChild(lab);
+    }
+    sec.append(h,grid); famSections.appendChild(sec);
+  }
+
+  famSections.onchange=(e)=>{
+    const cb = (e.target && e.target.matches && e.target.matches('input[type="checkbox"]')) ? e.target : null;
+    if(!cb) return;
+    const set=selectionSet();
+    if(cb.checked) set.add(cb.dataset.id); else set.delete(cb.dataset.id);
+    famCount.textContent=[...set].length; saveStore();
+  };
+
+  famCount.textContent=[...sel].length;
+}
+
+/* ========= Mode & filter buttons ========= */
+$('modeAdd').addEventListener('click',()=>{ if(mode!=='add'){ mode='add'; $('modeAdd').classList.add('active'); $('modeMul').classList.remove('active'); renderFamilySections(); saveStore(); } });
+$('modeMul').addEventListener('click',()=>{ if(mode!=='mul'){ mode='mul'; $('modeMul').classList.add('active'); $('modeAdd').classList.remove('active'); renderFamilySections(); saveStore(); } });
+$('brainrotToggle').addEventListener('change',()=>{ brainrotOn=$('brainrotToggle').checked; saveStore(); });
+
+$('famAll').addEventListener('click',()=>{ const sel=selectionSet(); familiesForMode(mode).forEach(f=>sel.add(f.id)); renderFamilySections(); saveStore(); });
+$('famNone').addEventListener('click',()=>{ const sel=selectionSet(); sel.clear(); renderFamilySections(); saveStore(); });
+function selectByDiff(key){
+  const sel=selectionSet(); sel.clear();
+  familiesForMode(mode).forEach(f=>{ if(diffForFamily(f,mode==='add').key===key) sel.add(f.id); });
+  renderFamilySections(); saveStore();
+}
+$('famKongle').addEventListener('click',()=>selectByDiff('kongle'));
+$('famFuru').addEventListener('click',()=>selectByDiff('furu'));
+$('famGran').addEventListener('click',()=>selectByDiff('gran'));
+$('famBjork').addEventListener('click',()=>selectByDiff('bjork'));
+
+/* ========= Game state ========= */
+let running=false, paused=false, sessionDur=60, startMs=0, pauseAccum=0, pauseStart=0, tickTimer=null;
+let correct=0, wrong=0, idx=0, queue=[], currentSolution=0, currentItem=null;
+const getElapsed = () => !startMs ? 0 : (((paused?pauseStart:Date.now())-startMs)-pauseAccum)/1000;
+
+/* ========= HUD ========= */
+function updateHUD(){
+  const e=getElapsed();
+  const rpm = e>0 ? (correct/(e/60)) : 0;
+  $('correct').textContent=String(correct);
+  $('rpm').textContent=rpm.toFixed(1);
+  $('bankTotal').textContent=String(bankTotal);
+  $('bestRpm').textContent=bestRPM.toFixed(1);
+  $('goalState').style.display=(goalRPM!=null && rpm>goalRPM)?'inline':'none';
+
+  if(sessionDur===0){
+    $('timeLeft').textContent = fmtTime(e);
+    $('progressWrap').style.visibility='hidden';
+  } else {
+    $('progressWrap').style.visibility='visible';
+    const elapsed=Math.min(sessionDur,Math.max(0,e));
+    const left=Math.max(0,sessionDur-elapsed);
+    $('timeLeft').textContent=fmtTime(left);
+    $('timeBar').style.width=`${Math.max(0,Math.min(100,(elapsed/sessionDur)*100))}%`;
+  }
+}
+
+/* ========= Oppgaver ========= */
+function renderInput(){ return `<input id="ansInput" class="numbox" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]*">`; }
+function setEquation(item){
+  currentItem=item; const [x,y,z]=item.pattern; const sign=item.op;
+  const missIndex=Math.floor(Math.random()*3);
+  $('eq').innerHTML=[
+    missIndex===0?renderInput():`<span class="cell">${x}</span>`,
+    `<span class="op">${sign}</span>`,
+    missIndex===1?renderInput():`<span class="cell">${y}</span>`,
+    `<span class="eqsign">=</span>`,
+    missIndex===2?renderInput():`<span class="cell">${z}</span>`
+  ].join('');
+  currentSolution=[x,y,z][missIndex];
+  const inp=$('ansInput');
+  if(inp){
+    const blockKeys = e => { if(['ArrowUp','ArrowDown','PageUp','PageDown'].includes(e.key)) e.preventDefault(); };
+    const blockWheel = e => e.preventDefault();
+    inp.addEventListener('keydown', blockKeys, {passive:false});
+    inp.addEventListener('wheel', blockWheel, {passive:false});
+    inp.addEventListener('input', () => { inp.value = inp.value.replace(/\D+/g,'').slice(0,3); onType(); });
+    inp.focus({preventScroll:true});
+  }
+}
+function onType(){
+  if(!running||paused) return;
+  const inp=$('ansInput'); if(!inp) return;
+  const v=inp.value.trim(); if(v==='') return;
+  if(+v===currentSolution || v.length>=2 || v==='0'){ submitAnswer(); }
+}
+function markInput(ok){ const inp=$('ansInput'); if(!inp) return; inp.classList.remove('ok','err'); inp.classList.add(ok?'ok':'err'); }
+
+function buildQueueFromSelection(){
+  const list=familiesForMode(mode), sel=selectionSet();
+  const chosen=list.filter(f=>sel.has(f.id));
+  const items=[]; chosen.forEach(f=>items.push(...(mode==='add'?familyItemsAdd(f):familyItemsMul(f))));
+  shuffle(items); return items;
+}
+function nextItem(){
+  if(idx>=queue.length){ queue=queue.concat(buildQueueFromSelection()); if(queue.length===0){ finishRun(); return; } }
+  setEquation(queue[idx]); updateHUD();
+}
+function submitAnswer(){
+  if(!running||paused) return;
+  const val=$('ansInput')?.value?.trim(); if(val==='') return;
+  const ok=(+val===currentSolution);
+  if(ok){ correct++; markInput(true); }
+  else { wrong++; markInput(false); queue.splice(idx+1,0,currentItem,currentItem,currentItem); }
+  idx++; setTimeout(nextItem,70); updateHUD();
+}
+
+/* ========= Start/Stop + nedtelling ========= */
+$('startBtn').addEventListener('click',()=>{ if(!running) startCountdown(); });
+$('pauseBtn').addEventListener('click',()=>{ if(!running) return; if(!paused){ paused=true; pauseStart=Date.now(); $('runFeedback').textContent='Pauset'; } else { paused=false; pauseAccum += Date.now()-pauseStart; pauseStart=0; $('runFeedback').textContent=''; } });
+$('stopBtn').addEventListener('click',()=>{ if(!running) return; finishRun(); });
+$('resetBtn').addEventListener('click',()=>{ if(!confirm('Slette alle lagrede resultater og bank?')) return; bankTotal=0; bestRPM=0; results=[]; renderResults(); updateHUD(); saveStore(); });
+
+function startCountdown(){
+  $('overlay').style.display='grid'; let t=3; $('count').textContent=t;
+  const iv=setInterval(()=>{ t--; if(t>0){ $('count').textContent=t; } else { $('count').textContent='KJØR!'; setTimeout(()=>{ $('overlay').style.display='none'; clearInterval(iv); beginRun(); },600);} },1000);
+}
+function beginRun(){
+  if(selectionSet().size===0){ alert('Velg minst én tallfamilie før du starter.'); return; }
+  $('runFeedback').textContent=''; running=true; paused=false; correct=0; wrong=0; idx=0;
+  const act=document.querySelector('#durChips .chip.active'); const d = Number(act && act.dataset ? act.dataset.dur : 60);
+  sessionDur = Number.isFinite(d) ? d : 60; // 0=stoppeklokke
+  startMs=Date.now(); pauseAccum=0; pauseStart=0;
+  queue=buildQueueFromSelection(); $('timeBar').style.width='0%';
+  if(sessionDur===0){ $('progressWrap').style.visibility='hidden'; $('timeLeft').textContent='00:00'; }
+  if(queue.length===0){ running=false; return; }
+  nextItem();
+  if(tickTimer) clearInterval(tickTimer);
+  tickTimer=setInterval(()=>{ if(!running||paused) return; updateHUD(); if(sessionDur>0 && getElapsed()>=sessionDur){ finishRun(); } },100);
+}
+function finishRun(){
+  const endRef=paused?pauseStart:Date.now();
+  const elapsed=Math.max(0,(endRef-startMs-pauseAccum)/1000);
+  const rpm = elapsed>0 ? (correct/(elapsed/60)) : 0;
+  const base=Math.floor(rpm), bonus=bonusForRPM(rpm), add=(isFinite(base)?base:0) + (isFinite(bonus)?bonus:0);
+  const newRecord=rpm>bestRPM, goalHit=(goalRPM!=null && rpm>goalRPM);
+  running=false; clearInterval(tickTimer);
+  bankTotal += add; if(newRecord) bestRPM=rpm;
+
+  // hvilke familier ble brukt?
+  const usedFamIds=new Set(); for(let i=0;i<idx;i++){ const it=queue[i]; if(it&&it.fam) usedFamIds.add(it.fam); }
+  const fams=[...usedFamIds].map(famLabel).join(' | ');
+  const modeLabel=mode==='add'?'Pluss/Minus':'Gange/Dele';
+
+  results.unshift({ time:ts(), mode:modeLabel, fams, correct, wrong,
+    dur:Math.round(sessionDur===0?elapsed:Math.min(sessionDur,elapsed)),
+    rpm:+(isFinite(rpm)?rpm.toFixed(1):'0'), bonus, add });
+
+  renderResults(); updateHUD(); saveStore();
+
+  const msg = newRecord && goalHit ? 'Ny personlig rekord og mål nådd.' : newRecord ? 'Ny personlig rekord.' : goalHit ? 'Mål nådd.' : '';
+  $('runFeedback').textContent = msg;
+  $('eq').innerHTML=`<span class="cell" style="font-size:clamp(18px,3vw,32px)">Klar for ny omgang – trykk Start</span>`;
+
+  if(brainrotOn){
+    const names=[ "Bombardiro Crocodilo","Bombombini Gusini","Capuccino Assassino","Tralalero Tralala","Ananitto Giraffini","Anpali Babbel","Ballerina Cappucina","Ballerino Lololo","Ballerino Loro","Bananita Dolfinita","Blueberrini Tatticini","Blueberrinni Octopussini","Bobrelli Bananelli","Bobrito Bandito","Boneca Ambalabu","Brr Brr Gangster Gusini","Brr Brr Patapim","Brr Es Teh Patipum","Bublicito Bandito Traktorito","Bulliccinni Bananini","Cannelloni Dragoni","Capybarelli Bananalelli","Carloooooo Carlooooo!","Chai Maestro","Chimpanzini Bananini","Cocosino Rhino","Cocossini Mama","Crabito Cocosito","Crocodildo Penisini","Crocodillo Ananasinno","Don Don Don Satur","Ecco Cavallo Virtuoso","Elephantuchi Bananuchi","Espressona Signora","Flamingulli-gulli-gulli","Frigo Camelo","Frulli Frulla","Tric Trac Baraboom","Burbaloni Lulilolli","Orangutini Ananasini","Ganganzelli Trulala","Garamararamararaman","Girafa Celeste","Glorbo Fruttodrillo","Gorillini Bananini","Gorillo Watermellondrillo","Graipussi Medussi","Il Cacto Hipopotamo","Il sacro cabrospaghetti mistico","Ketupat Kepat Prekupat","Kiwitto Banditto","La Esok Sekolah","La Vaca Saturno Saturnita","La Vaca Trippa Troppa Bombombini Gusini Tralala Lirilira Tung Tung Sahur boneka","Leonelli Cactuselli","Lirilì Larilà","Makakini Bananini","Mangolini Parrocini","Matteooooooooooooo","Nuclearo Dinossauro","Orcaleritos","Orcalero Orcala","Pandaccini Bananini","Penguino Cocosino","Perochello Lemonchello","PiPi Kiwi","Piccione Macchina","Pipi Strawberry","Pot Hotspot" ];
+    const name = names[Math.floor(Math.random()*names.length)];
+    const phrase=`Bra jobba, du er like sigma som ${name}!`;
+    const backdrop=$('sigmaBackdrop'), text=$('sigmaText');
+    text.textContent=phrase; backdrop.style.display='grid';
+    try{ const u=new SpeechSynthesisUtterance(phrase); u.lang='nb-NO'; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){}
+    const hide=()=>{ backdrop.style.display='none'; backdrop.removeEventListener('click',hide); };
+    backdrop.addEventListener('click',hide); setTimeout(hide,3000);
+  }
+}
+
+/* ========= Results (kumulativ bank) ========= */
+function renderResults(){
+  const body=$('resultsBody');
+  const sums=[]; let acc=0;
+  for(let i=results.length-1;i>=0;i--){ acc += (+results[i].add||0); sums[i]=acc; }
+  body.innerHTML = results.map((r,i)=>`
+    <tr>
+      <td>${r.time}</td>
+      <td>${r.mode||''}</td>
+      <td>${r.fams||''}</td>
+      <td class="right">${r.correct}</td>
+      <td class="right">${r.wrong}</td>
+      <td class="right">${r.dur}</td>
+      <td class="right rpm-strong">${(Number.isFinite(+r.rpm)?(+r.rpm).toFixed(1):'0.0')}</td>
+      <td class="right">${r.bonus}</td>
+      <td class="right bank">+${r.add}</td>
+      <td class="right bank">${sums[i]}</td>
+    </tr>
+  `).join('');
+  $('bankTotal').textContent = sums[0] || 0;
+  $('bestRpm').textContent  = bestRPM.toFixed(1);
+}
+
+/* ========= Varighet ========= */
+$('durChips').addEventListener('click',(e)=>{
+  const btn=e.target.closest('.chip'); if(!btn) return;
+  [...$('durChips').querySelectorAll('.chip')].forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  const d=Number(btn.dataset.dur);
+  $('timeLeft').textContent = (d===0)?'00:00':fmtTime(d);
+  $('timeBar').style.width='0%';
+  $('progressWrap').style.visibility=(d===0)?'hidden':'visible';
+});
+
+/* ========= Mål ========= */
+$('goalInput').addEventListener('change',()=>{
+  const v=$('goalInput').value.trim(); goalRPM = v==='' ? null : Math.max(1, Math.min(200, +v)); saveStore();
+});
+
+/* ========= Mobil-tastatur ========= */
+(function buildKeypad(){
+  const frag=document.createDocumentFragment();
+  for(let n=0;n<=20;n++){
+    const b=document.createElement('button'); b.type='button'; b.className='key'; b.textContent=String(n); b.dataset.val=n;
+    frag.appendChild(b);
+  }
+  $('keypad').appendChild(frag);
+  $('keypad').addEventListener('click',e=>{
+    const btn=e.target.closest('.key'); if(!btn||!running||!$('ansInput')||paused) return;
+    const inp=$('ansInput'); if(inp) inp.value=btn.dataset.val;
+    submitAnswer();
+  });
+})();
+
+/* ========= Init ========= */
+function init(){
+  loadStore();
+  $('modeAdd').classList.toggle('active', mode==='add');
+  $('modeMul').classList.toggle('active', mode==='mul');
+  $('brainrotToggle').checked=brainrotOn;
+
+  renderFamilySections();
+  renderResults();
+
+  // Sett tidstekst etter valgt chip
+  const activeBtn = document.querySelector('#durChips .chip.active');
+  const d = Number(activeBtn && activeBtn.dataset ? activeBtn.dataset.dur : 60);
+  $('timeLeft').textContent = (d===0)?'00:00':fmtTime(d);
+  $('progressWrap').style.visibility=(d===0)?'hidden':'visible';
+
+  // hurtigtaster
+  document.addEventListener('keydown',e=>{
+    const k=e.key;
+    if(k==='Enter'){ e.preventDefault(); if(!running) $('startBtn').click(); }
+    if(k===' '||k==='Spacebar'){ e.preventDefault(); $('pauseBtn').click(); }
+    if(k==='s'||k==='S'){ e.preventDefault(); $('stopBtn').click(); }
+  });
+}
+document.addEventListener('DOMContentLoaded', init);
+
+})();</script>
+</body>
+</html>
