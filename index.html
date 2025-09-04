@@ -27,7 +27,7 @@
   .chipgroup{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
   .chip{border:1px solid var(--ring);background:#0b1223;color:#e5e7eb;border-radius:999px;padding:6px 10px;cursor:pointer;font-weight:700}
   .chip.active{border-color:#22c55e;box-shadow:0 0 0 2px #09321b inset}
-  .caps{font-variant:all-small-caps;letter-spacing:.5px;color:var(--muted)}
+  .caps{font-variant:all-small-caps;letter-spacing:.5px;color:#9aa3b2}
 
   .btn{background:#0b1223;color:#e5e7eb;border:1px solid var(--ring);padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
   .btn.primary{border-color:#22c55e}.btn.warn{border-color:#f59e0b}.btn.stop{border-color:#ef4444}
@@ -35,7 +35,7 @@
 
   .time-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .time-big{font-variant-numeric:tabular-nums;font-size:26px;font-weight:800}
-  .progress{height:12px;background:var(--bar);border-radius:999px;overflow:hidden;outline:1px solid #334155; margin:12px 0 16px;}
+  .progress{height:12px;background:var(--bar);border-radius:999px;overflow:hidden;outline:1px solid #334155;margin:12px 0 16px}
   .bar{height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width .2s ease}
 
   .stage{display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(1200px 300px at 50% -40%, #22c55e1f, transparent 60%);padding:12px;border-radius:12px}
@@ -92,38 +92,51 @@
 
   /* oppgavefelt + "Siste RPM" oppe ved tidtaking */
   .playbelt{
-    display:grid;
-    grid-template-columns: 1fr 280px;
-    gap:12px;
-    margin-top:12px;
-    align-items:stretch;
+    display:grid; grid-template-columns: 1fr 280px; gap:12px; margin-top:12px; align-items:stretch;
   }
-  @media (max-width:900px){
-    .playbelt{ grid-template-columns: 1fr; }
-  }
+  @media (max-width:900px){ .playbelt{ grid-template-columns: 1fr; } }
   .sideStat{
-    background:#0b1223;
-    border:1px solid var(--ring);
-    border-radius:12px;
-    padding:12px;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    gap:6px;
+    background:#0b1223; border:1px solid var(--ring); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:6px;
   }
-  .sideStat__label{
-    font-size:12px;
-    color:var(--muted);
-    letter-spacing:.3px;
-  }
-  .sideStat__value{
-    font-variant-numeric:tabular-nums;
-    font-weight:900;
-    font-size:28px;
-    color:#fcd34d;
-  }
+  .sideStat__label{font-size:12px;color:var(--muted);letter-spacing:.3px}
+  .sideStat__value{font-variant-numeric:tabular-nums;font-weight:900;font-size:28px;color:#fcd34d}
 
+  /* Samling (brainrot-kort) */
+  .collection-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .collection-grid{display:grid;gap:8px;grid-template-columns:repeat(5,minmax(0,1fr))}
+  @media (max-width:900px){.collection-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  .collect-card{position:relative;background:#0b1223;border:1px solid var(--ring);border-radius:12px;padding:10px}
+  .collect-name{font-weight:800;font-size:14px;line-height:1.2}
+  .collect-meta{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:#cbd5e1}
+  .badge-soft{border:1px solid #334155;border-radius:999px;padding:2px 8px;font-size:11px}
+  .tier-Common{background:#0f172a}
+  .tier-Uncommon{background:#0a1f10;border-color:#14532d}
+  .tier-Rare{background:#0a1425;border-color:#1d4ed8}
+  .tier-Epic{background:#220a2a;border-color:#a21caf}
+  .tier-Legendary{background:#2a1a05;border-color:#b45309}
+  .collect-count{font-variant-numeric:tabular-nums}
+  .owned{border-color:#22c55e; box-shadow:0 0 0 2px #14532d inset, 0 0 18px rgba(34,197,94,.25)}
+  .owned .collect-name{color:#bbf7d0}
+  .owned-badge{position:absolute; top:8px; right:8px; background:#052e15; color:#a7f3d0; border:1px solid #22c55e; border-radius:999px; padding:2px 8px; font-size:11px; font-weight:900;}
+  .locked{opacity:.5; border-style:dashed}
+
+  /* Skjul løpende RPM, vi viser “Siste RPM” oppe ved oppgaven */
   #rpm{display:none;}
+
+  /* === Kister (loot) === */
+  .loot-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .loot-grid{display:grid;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .loot-box{background:#0b1223;border:1px solid var(--ring);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+  .loot-tier{font-weight:800}
+  .tier-bronze{color:#d1d5db}
+  .tier-silver{color:#93c5fd}
+  .tier-gold{color:#fcd34d}
+  .loot-cta{display:flex;gap:8px;flex-wrap:wrap}
+  .openres{margin-top:8px;padding:8px;border:1px dashed #334155;border-radius:10px;font-size:14px}
+  .openres .rare{color:#60a5fa;font-weight:800}
+  .openres .epic{color:#c084fc;font-weight:800}
+  .openres .leg{color:#f59e0b;font-weight:900}
+  .badge-hard{background:#0b1223;border:1px solid #334155;border-radius:999px;padding:4px 8px;font-size:12px}
 </style>
 </head>
 <body>
@@ -199,7 +212,7 @@
       <button class="chip active" id="modeAdd"  data-mode="add" type="button">Pluss/Minus</button>
       <button class="chip" id="modeMul" data-mode="mul" type="button">Gange/Dele</button>
       <label style="display:flex;align-items:center;gap:8px;margin-left:auto">
-        <input id="brainrotToggle" type="checkbox" checked> Brainrot-tilbakemelding
+        <input id="brainrotToggle" type="checkbox"> Brainrot-modus (samlekort)
       </label>
     </div>
   </div>
@@ -227,6 +240,52 @@
     <div id="famSections"></div>
   </div>
 
+  <!-- KISTER (valgfritt, helt lokalt) -->
+  <div class="card">
+    <div class="modebar" style="margin-bottom:8px">
+      <span class="caps">kister</span>
+      <label style="display:flex;align-items:center;gap:8px;margin-left:auto">
+        <input id="lootToggle" type="checkbox"> Skru på kister (belønning via RPM)
+      </label>
+    </div>
+
+    <div id="lootWrap" style="display:none">
+      <div class="loot-head">
+        <div class="badge-hard">Kister i kø: <b id="lootQueueCount">0</b></div>
+        <div class="badge-hard">Støv: <b id="dustCount">0</b></div>
+      </div>
+
+      <div class="loot-grid">
+        <div class="loot-box">
+          <div class="loot-tier tier-bronze">Bronse-kiste</div>
+          <div style="font-size:12px;color:#9aa3b2">Basisodds • Garantert <i>Rare</i> innen 10, <i>Epic</i> innen 40 (pity)</div>
+          <div class="loot-cta">
+            <button id="openOneBtn" class="btn">Åpne 1</button>
+            <button id="openFiveBtn" class="btn">Åpne 5</button>
+            <button id="openAllBtn" class="btn">Åpne alle</button>
+          </div>
+          <div id="openResult" class="openres" aria-live="polite"></div>
+        </div>
+
+        <div class="loot-box">
+          <div class="loot-tier tier-silver">Sølv-kiste</div>
+          <div style="font-size:12px;color:#9aa3b2">Bedre sjanser (RPM ≥ 30)</div>
+          <div class="badge-hard">I kø: <b id="silverCount">0</b></div>
+        </div>
+
+        <div class="loot-box">
+          <div class="loot-tier tier-gold">Gull-kiste</div>
+          <div style="font-size:12px;color:#9aa3b2">Beste sjanser (RPM ≥ 50)</div>
+          <div class="badge-hard">I kø: <b id="goldCount">0</b></div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;font-size:12px;color:#9aa3b2">
+        Duplikat → støv (Common 1 • Uncommon 3 • Rare 8 • Epic 20 • Legendary 50). 40 støv = valgfritt ikke-eid kort (kan legges til).
+      </div>
+    </div>
+  </div>
+
   <!-- MOBIL-TASTATUR -->
   <div class="card">
     <div style="font-weight:800;margin-bottom:8px">Tastatur (mobil)</div>
@@ -245,6 +304,27 @@
       <div class="row" style="justify-content:space-between;background:#0b1223;border:1px dashed #334155;border-radius:12px;padding:8px 10px"><span>&gt; 60 RPM</span><span>+ 200</span></div>
     </div>
     <div style="color:#9aa3b2;font-size:13px;margin-top:6px">Bank per omgang = gulv(RPM) + bonus</div>
+  </div>
+
+  <!-- SAMLING (vises bare i Brainrot-modus) -->
+  <div id="collectionCard" class="card" style="display:none">
+    <div class="collection-head">
+      <div style="font-weight:800">Samling av Brainrot-figurer</div>
+      <div class="row">
+        <label class="row" style="gap:6px"><input id="toggleMineOnly" type="checkbox"> Vis bare mine</label>
+        <div class="badge-soft">Total verdi: <span id="collectionValue">0</span></div>
+      </div>
+    </div>
+
+    <div id="mineWrap">
+      <div class="caps" style="margin:6px 0 8px">Mine kort</div>
+      <div id="collectionGridMine" class="collection-grid"></div>
+    </div>
+
+    <div id="othersWrap" style="margin-top:10px">
+      <div class="caps" style="margin:6px 0 8px">De andre</div>
+      <div id="collectionGridOthers" class="collection-grid"></div>
+    </div>
   </div>
 
   <!-- RESULTATER -->
@@ -281,10 +361,10 @@
   <div id="count" style="font-size:clamp(42px,10vw,120px);font-weight:900">3</div>
 </div>
 
-<!-- Brainrot -->
+<!-- Brainrot banner -->
 <div id="sigmaBackdrop" style="display:none;place-items:center;position:fixed;inset:0;background:rgba(2,6,23,.6);z-index:200;backdrop-filter:blur(2px);">
   <div id="sigmaSign" style="background:#0b1223;border:2px solid #334155;border-radius:18px;padding:22px 26px;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.6);">
-    <div id="sigmaText" style="font-size:clamp(26px, 5vw, 48px);font-weight:900;line-height:1.15;">Bra jobba!</div>
+    <div id="sigmaText" style="font-size:clamp(22px, 4.5vw, 40px);font-weight:900;line-height:1.25;">Bra jobba!</div>
     <div id="sigmaHint" style="margin-top:6px;color:#9aa3b2;font-size:13px">Klikk for å lukke</div>
   </div>
 </div>
@@ -309,11 +389,69 @@ const fmtTime=s=>{ if(s===null) return '—'; s=Math.max(0,Math.ceil(s)); return
 const ts=()=>{ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`; };
 const bonusForRPM=r=> r>60?200:r>50?100:r>40?70:r>30?50:r>20?30:r>=10?10:0;
 
+/* ========= Brainrot samlekort ========= */
+const TIERS = {
+  Common:     {weight: 50, value: 5},
+  Uncommon:   {weight: 25, value: 12},
+  Rare:       {weight: 15, value: 30},
+  Epic:       {weight: 8,  value: 80},
+  Legendary:  {weight: 2,  value: 180}
+};
+
+const BRAINROT = [
+  {name:"Tralalero Tralala",            tier:"Common"},
+  {name:"Ballerina Cappucina",          tier:"Common"},
+  {name:"Capybarelli Bananalelli",      tier:"Common"},
+  {name:"Chimpanzini Bananini",         tier:"Common"},
+  {name:"Penguino Cocosino",            tier:"Common"},
+  {name:"Bobrelli Bananelli",           tier:"Common"},
+  {name:"Blueberrini Tatticini",        tier:"Uncommon"},
+  {name:"Frulli Frulla",                tier:"Uncommon"},
+  {name:"Piccione Macchina",            tier:"Uncommon"},
+  {name:"Kiwitto Banditto",             tier:"Uncommon"},
+  {name:"Leonelli Cactuselli",          tier:"Uncommon"},
+  {name:"Chai Maestro",                 tier:"Uncommon"},
+  {name:"La Vaca Saturno",              tier:"Rare"},
+  {name:"Orcalero Orcala",              tier:"Rare"},
+  {name:"Girafa Celeste",               tier:"Rare"},
+  {name:"Ecco Cavallo Virtuoso",        tier:"Rare"},
+  {name:"Espressona Signora",           tier:"Rare"},
+  {name:"Gorillo Watermellondrillo",    tier:"Epic"},
+  {name:"Graipussi Medussi",            tier:"Epic"},
+  {name:"Tric Trac Baraboom",           tier:"Epic"},
+  {name:"Frigo Camelo",                 tier:"Epic"},
+  {name:"Nuclearo Dinossauro",          tier:"Legendary"},
+  {name:"Burbaloni Lulilolli",          tier:"Legendary"},
+  {name:"Il Cacto Ippopotamo",          tier:"Legendary"},
+  {name:"Pot Hotspot",                  tier:"Legendary"}
+];
+
+// vektet trekning påvirkes av RPM (for sigma-banner), brukes ved kort-awards
+function pickBrainrot(rpm){
+  const steps = Math.max(0, Math.floor((rpm - 20)/10));
+  const pool = BRAINROT.map((card, idx) => {
+    let w = TIERS[card.tier].weight;
+    if(steps>0){
+      if(card.tier==="Legendary") w += steps*1.2;
+      if(card.tier==="Epic")      w += steps*1.0;
+      if(card.tier==="Rare")      w += steps*0.7;
+      if(card.tier==="Uncommon")  w += steps*0.3;
+      if(card.tier==="Common")    w -= steps*1.5;
+      w = Math.max(0.1, w);
+    }
+    return {idx, weight:w};
+  });
+  const total = pool.reduce((s,p)=>s+p.weight,0);
+  let r = Math.random()*total;
+  for(const p of pool){
+    if((r-=p.weight) <= 0) return BRAINROT[p.idx];
+  }
+  return BRAINROT[0];
+}
+
 /* ========= Families ========= */
-// Add: c=2..20, a<=b
 const FAMS_ADD=[];
 for(let c=2;c<=20;c++){ for(let a=1;a<=Math.floor(c/2);a++){ const b=c-a; FAMS_ADD.push({a,b,c,id:`A:${a}-${b}-${c}`}); } }
-// Mul: 1..12, a<=b
 const FAMS_MUL=[];
 for(let a=1;a<=12;a++){ for(let b=a;b<=12;b++){ const c=a*b; FAMS_MUL.push({a,b,c,id:`M:${a}-${b}-${c}`}); } }
 
@@ -339,10 +477,36 @@ const diffForFamily=(f,isAdd)=> ({key: isAdd?diffForAdd(f.c):diffForMul(f.c), la
 const DIFF_ORDER=['kongle','furu','gran','bjork'];
 
 /* ========= Storage ========= */
-const KEY='tallfamilier_rescue_v1';
+const KEY='tallfamilier_rescue_v5';
 let bankTotal=0, bestRPM=0, goalRPM=null, results=[];
-let mode='add', brainrotOn=true;
+let mode='add', brainrotOn=false;
 let selectedAdd=new Set(), selectedMul=new Set();
+let collection = {};     // { name: count }
+let collectionValue = 0; // total verdi
+
+/* === Loot storage === */
+let lootOn = false;
+let lootBronze = 0, lootSilver = 0, lootGold = 0;
+let pityRare = 0, pityEpic = 0;
+let dust = 0;
+
+const BASE_ODDS = { Common:60, Uncommon:25, Rare:10, Epic:4, Legendary:1 };
+const SILVER_BONUS = { Rare:+5, Epic:+2, Legendary:+1 };
+const GOLD_BONUS   = { Rare:+10, Epic:+5, Legendary:+2 };
+const DUST_VALUE = { Common:1, Uncommon:3, Rare:8, Epic:20, Legendary:50 };
+
+function loadLoot(o){
+  lootOn     = !!o.lootOn;
+  lootBronze = +o.lootBronze || 0;
+  lootSilver = +o.lootSilver || 0;
+  lootGold   = +o.lootGold   || 0;
+  pityRare   = +o.pityRare   || 0;
+  pityEpic   = +o.pityEpic   || 0;
+  dust       = +o.dust       || 0;
+}
+function saveLoot(obj){
+  Object.assign(obj, {lootOn,lootBronze,lootSilver,lootGold,pityRare,pityEpic,dust});
+}
 
 function loadStore(){
   try{
@@ -350,16 +514,23 @@ function loadStore(){
     const o=JSON.parse(raw);
     bankTotal=+o.bankTotal||0; bestRPM=+o.bestRPM||0; goalRPM=(o.goalRPM==null?null:+o.goalRPM);
     results=Array.isArray(o.results)?o.results:[];
-    mode=(o.mode==='mul')?'mul':'add'; brainrotOn=o.brainrotOn!==false;
+    mode=(o.mode==='mul')?'mul':'add';
+    brainrotOn = !!o.brainrotOn;
     selectedAdd=new Set(o.selAdd||[]); selectedMul=new Set(o.selMul||[]);
+    collection = o.collection || {};
+    collectionValue = +o.collectionValue || 0;
+    loadLoot(o);
   }catch(e){ console.warn(e); }
 }
 function saveStore(){
   try{
-    localStorage.setItem(KEY, JSON.stringify({
+    const obj = {
       bankTotal,bestRPM,goalRPM,results,mode,brainrotOn,
-      selAdd:[...selectedAdd], selMul:[...selectedMul]
-    }));
+      selAdd:[...selectedAdd], selMul:[...selectedMul],
+      collection, collectionValue
+    };
+    saveLoot(obj);
+    localStorage.setItem(KEY, JSON.stringify(obj));
   }catch(e){ console.warn(e); }
 }
 
@@ -405,24 +576,14 @@ function renderFamilySections(){
 /* ========= Mode & filter buttons ========= */
 $('modeAdd').addEventListener('click',()=>{ if(mode!=='add'){ mode='add'; $('modeAdd').classList.add('active'); $('modeMul').classList.remove('active'); renderFamilySections(); saveStore(); } });
 $('modeMul').addEventListener('click',()=>{ if(mode!=='mul'){ mode='mul'; $('modeMul').classList.add('active'); $('modeAdd').classList.remove('active'); renderFamilySections(); saveStore(); } });
-$('brainrotToggle').addEventListener('change',()=>{ brainrotOn=$('brainrotToggle').checked; saveStore(); });
-
-$('famAll').addEventListener('click',()=>{ const sel=selectionSet(); familiesForMode(mode).forEach(f=>sel.add(f.id)); renderFamilySections(); saveStore(); });
-$('famNone').addEventListener('click',()=>{ const sel=selectionSet(); sel.clear(); renderFamilySections(); saveStore(); });
-function selectByDiff(key){
-  const sel=selectionSet(); sel.clear();
-  familiesForMode(mode).forEach(f=>{ if(diffForFamily(f,mode==='add').key===key) sel.add(f.id); });
-  renderFamilySections(); saveStore();
-}
-$('famKongle').addEventListener('click',()=>selectByDiff('kongle'));
-$('famFuru').addEventListener('click',()=>selectByDiff('furu'));
-$('famGran').addEventListener('click',()=>selectByDiff('gran'));
-$('famBjork').addEventListener('click',()=>selectByDiff('bjork'));
+$('brainrotToggle').addEventListener('change',()=>{
+  brainrotOn=$('brainrotToggle').checked; saveStore(); updateBrainrotUI();
+});
 
 /* ========= Game state ========= */
 let running=false, paused=false, sessionDur=60, startMs=0, pauseAccum=0, pauseStart=0, tickTimer=null;
 let correct=0, wrong=0, idx=0, queue=[], currentSolution=0, currentItem=null;
-let hintTimer=null; // ny: timer for hint
+let hintTimer=null;
 const getElapsed = () => !startMs ? 0 : (((paused?pauseStart:Date.now())-startMs)-pauseAccum)/1000;
 
 /* ========= HUD ========= */
@@ -450,9 +611,7 @@ function updateHUD(){
 /* ========= Oppgaver ========= */
 function renderInput(){ return `<input id="ansInput" class="numbox" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]*">`; }
 function setEquation(item){
-  // nullstill hint
   clearHint();
-
   currentItem=item; const [x,y,z]=item.pattern; const sign=item.op;
   const missIndex=Math.floor(Math.random()*3);
   $('eq').innerHTML=[
@@ -464,7 +623,6 @@ function setEquation(item){
   ].join('');
   currentSolution=[x,y,z][missIndex];
 
-  // start hint-timer (3 sek)
   startHintTimer();
 
   const inp=$('ansInput');
@@ -500,9 +658,7 @@ function startHintTimer(){
   if(hintTimer) clearTimeout(hintTimer);
   hintTimer = setTimeout(()=>{
     if(!running || paused) return;
-    // vis svaret som hint under oppgaven
-    const hint = $('hint');
-    hint.innerHTML = `<small>Hint:</small> ${currentSolution}`;
+    $('hint').innerHTML = `<small>Hint:</small> ${currentSolution}`;
   }, 3000);
 }
 function clearHint(){
@@ -527,7 +683,7 @@ function submitAnswer(){
   if(ok){ correct++; markInput(true); }
   else { wrong++; markInput(false); queue.splice(idx+1,0,currentItem,currentItem,currentItem); }
   idx++;
-  clearHint(); // fjern hint ved svar
+  clearHint();
   setTimeout(nextItem,70); updateHUD();
 }
 
@@ -535,7 +691,14 @@ function submitAnswer(){
 $('startBtn').addEventListener('click',()=>{ if(!running) startCountdown(); });
 $('pauseBtn').addEventListener('click',()=>{ if(!running) return; if(!paused){ paused=true; pauseStart=Date.now(); $('runFeedback').textContent='Pauset'; } else { paused=false; pauseAccum += Date.now()-pauseStart; pauseStart=0; $('runFeedback').textContent=''; } });
 $('stopBtn').addEventListener('click',()=>{ if(!running) return; finishRun(); });
-$('resetBtn').addEventListener('click',()=>{ if(!confirm('Slette alle lagrede resultater og bank?')) return; bankTotal=0; bestRPM=0; results=[]; renderResults(); updateHUD(); saveStore(); $('lastRpm').textContent='0.0'; clearHint(); });
+$('resetBtn').addEventListener('click',()=>{
+  if(!confirm('Slette alle lagrede resultater, bank og samling?')) return;
+  bankTotal=0; bestRPM=0; results=[];
+  collection={}; collectionValue=0;
+  lootBronze=0; lootSilver=0; lootGold=0; pityRare=0; pityEpic=0; dust=0;
+  renderResults(); renderCollection(); renderLoot(); updateHUD(); saveStore();
+  $('lastRpm').textContent='0.0'; clearHint();
+});
 
 function startCountdown(){
   $('overlay').style.display='grid'; let t=3; $('count').textContent=t;
@@ -555,62 +718,204 @@ function beginRun(){
   if(tickTimer) clearInterval(tickTimer);
   tickTimer=setInterval(()=>{ if(!running||paused) return; updateHUD(); if(sessionDur>0 && getElapsed()>=sessionDur){ finishRun(); } },100);
 }
-function finishRun(){
-  const endRef=paused?pauseStart:Date.now();
-  const elapsed=Math.max(0,(endRef-startMs-pauseAccum)/1000);
-  const rpm = elapsed>0 ? (correct/(elapsed/60)) : 0;
-  const base=Math.floor(rpm), bonus=bonusForRPM(rpm), add=(isFinite(base)?base:0) + (isFinite(bonus)?bonus:0);
-  const newRecord=rpm>bestRPM, goalHit=(goalRPM!=null && rpm>=goalRPM);
-  running=false; clearInterval(tickTimer);
-  bankTotal += add; if(newRecord) bestRPM=rpm;
 
-  // hvilke familier ble brukt?
-  const usedFamIds=new Set(); for(let i=0;i<idx;i++){ const it=queue[i]; if(it&&it.fam) usedFamIds.add(it.fam); }
-  const fams=[...usedFamIds].map(famLabel).join(' | ');
-  const modeLabel=mode==='add'?'Pluss/Minus':'Gange/Dele';
+/* ========= Samling: rendering ========= */
+function renderCollection(){
+  const mineGrid = $('collectionGridMine');
+  const othersGrid = $('collectionGridOthers');
+  if(!mineGrid || !othersGrid) return;
 
-  results.unshift({ time:ts(), mode:modeLabel, fams, correct, wrong,
-    dur:Math.round(sessionDur===0?elapsed:Math.min(sessionDur,elapsed)),
-    rpm:+(isFinite(rpm)?rpm.toFixed(1):'0'), bonus, add });
+  const mine = [];
+  const others = [];
+  BRAINROT.forEach(card=>{
+    const cnt = collection[card.name]||0;
+    const val = TIERS[card.tier].value;
+    const base = `
+      <div class="collect-card ${cnt>0?'owned':'locked'}">
+        ${cnt>0?`<span class="owned-badge">x${cnt}</span>`:''}
+        <div class="collect-name">${card.name}</div>
+        <div class="collect-meta">
+          <span class="badge-soft ${'tier-'+card.tier}">${card.tier}</span>
+          <span class="collect-count">${cnt>0?('x'+cnt):'—'}</span>
+        </div>
+        <div class="collect-meta" style="margin-top:4px">
+          <span class="badge-soft">Verdi: ${val}</span><span></span>
+        </div>
+      </div>`;
+    if(cnt>0) mine.push(base); else others.push(base);
+  });
 
-  $('lastRpm').textContent = rpm.toFixed(1);
+  mineGrid.innerHTML = mine.join('') || `<div style="opacity:.8">Ingen kort enda – spill i Brainrot-modus for å samle.</div>`;
+  othersGrid.innerHTML = others.join('');
 
-  renderResults(); updateHUD(); saveStore();
+  $('collectionValue').textContent = collectionValue;
 
-  const msg =
-    newRecord && goalHit ? 'Ny personlig rekord og mål nådd.' :
-    newRecord ? 'Ny personlig rekord.' :
-    goalHit ? 'Mål nådd.' : `Ferdig – RPM: ${rpm.toFixed(1)}`;
-  $('runFeedback').textContent = msg;
-  $('eq').innerHTML=`<span class="cell" style="font-size:clamp(18px,3vw,32px)">Klar for ny omgang – trykk Start</span>`;
-  clearHint();
-
-  if(brainrotOn){
-    const names=[
-      "Tralalero Tralala","Ballerina Cappucina","Capybarelli Bananalelli","Chimpanzini Bananini",
-      "Penguino Cocosino","Gorillini Bananini","Cannelloni Dragoni","Blueberrini Tatticini",
-      "Ecco Cavallo Virtuoso","Frulli Frulla","Piccione Macchina","Kiwitto Banditto",
-      "La Vaca Saturno","Orcalero Orcala","Leonelli Cactuselli","Bobrelli Bananelli",
-      "Chai Maestro","Nuclearo Dinossauro","Girafa Celeste","Espressona Signora",
-      "Flamingulli Gulli","Tric Trac Baraboom","Frigo Camelo","Burbaloni Lulilolli",
-      "Ananitto Giraffini","Brr Brr Patapim","Il Cacto Ippopotamo","Gorillo Watermellondrillo",
-      "Graipussi Medussi","Pot Hotspot"
-    ];
-    const name = names[Math.floor(Math.random()*names.length)];
-    const phrase=`Bra jobba, du er like sigma som ${name}!`;
-    const backdrop=$('sigmaBackdrop'), text=$('sigmaText');
-    text.textContent=phrase; backdrop.style.display='grid';
-    try{ const u=new SpeechSynthesisUtterance(phrase); u.lang='nb-NO'; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){}
-    const hide=()=>{ backdrop.style.display='none'; backdrop.removeEventListener('click',hide); };
-    backdrop.addEventListener('click',hide); setTimeout(hide,3000);
-  }
+  const only = $('toggleMineOnly')?.checked;
+  $('othersWrap').style.display = only ? 'none' : '';
+  $('mineWrap').style.display = '';
 }
 
-/* ========= Results (kumulativ bank nedover, nyeste øverst) ========= */
+/* ========= Sigma-kort ved slutt av omgang (om brainrot) ========= */
+function awardCardsWithSigma(rpm){
+  const maxPerRun = 5;
+  const extra = Math.floor(rpm / 40);
+  const n = Math.max(1, Math.min(1 + extra, maxPerRun));
+
+  const gained = [];
+  for(let i=0;i<n;i++){
+    const card = pickBrainrot(rpm);
+    const tierInfo = TIERS[card.tier];
+    collection[card.name] = (collection[card.name]||0) + 1;
+    collectionValue += tierInfo.value;
+    gained.push({name:card.name, tier:card.tier, value:tierInfo.value});
+  }
+  saveStore();
+  renderCollection();
+
+  const rarityRank = {Legendary:5, Epic:4, Rare:3, Uncommon:2, Common:1};
+  gained.sort((a,b)=>rarityRank[b.tier]-rarityRank[a.tier]);
+  const primary = gained[0];
+  const otherCount = gained.length-1;
+  const extraLine = otherCount>0 ? ` + ${otherCount} annet kort${otherCount>1?'er':''}` : '';
+  const phrase = `Du er like sigma som ${primary.name}! (verdi +${primary.value})${extraLine}`;
+
+  const backdrop=$('sigmaBackdrop'), text=$('sigmaText');
+  text.textContent=phrase; backdrop.style.display='grid';
+  try{ const u=new SpeechSynthesisUtterance(phrase); u.lang='nb-NO'; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){}
+  const hide=()=>{ backdrop.style.display='none'; backdrop.removeEventListener('click',hide); };
+  backdrop.addEventListener('click',hide); setTimeout(hide,3500);
+}
+
+/* ========= Loot: UI ========= */
+function renderLoot(){
+  const on = lootOn;
+  const wrap = $('lootWrap'); if(wrap) wrap.style.display = on ? '' : 'none';
+  $('lootQueueCount') && ($('lootQueueCount').textContent = (lootBronze+lootSilver+lootGold));
+  $('silverCount') && ($('silverCount').textContent = lootSilver);
+  $('goldCount') && ($('goldCount').textContent   = lootGold);
+  $('dustCount') && ($('dustCount').textContent   = dust);
+  $('lootToggle') && ($('lootToggle').checked = lootOn);
+}
+$('lootToggle')?.addEventListener('change',()=>{
+  lootOn = $('lootToggle').checked;
+  saveStore(); renderLoot();
+});
+
+/* ========= Loot: odds og åpning ========= */
+function oddsForTier(tier){
+  const o = {...BASE_ODDS};
+  const bonus = tier==='gold' ? GOLD_BONUS : tier==='silver' ? SILVER_BONUS : null;
+  if(bonus){
+    let take = 0;
+    for(const k of Object.keys(bonus)){ o[k]+=bonus[k]; take += bonus[k]; }
+    o.Common = Math.max(0, o.Common - take);
+  }
+  const sum = Object.values(o).reduce((a,b)=>a+b,0);
+  for(const k in o){ o[k] = o[k]*100/sum; }
+  return o;
+}
+function drawRarity(baseOdds, pityRareNow, pityEpicNow){
+  if(pityEpicNow>=39) return 'Epic';
+  if(pityRareNow>=9)  return 'Rare';
+  const r = Math.random()*100;
+  let acc=0;
+  for(const [rar, p] of Object.entries(baseOdds)){
+    acc += Math.max(0,p);
+    if(r <= acc) return rar;
+  }
+  return 'Common';
+}
+function openOne(){
+  let tier=null;
+  if(lootGold>0){ tier='gold'; lootGold--; }
+  else if(lootSilver>0){ tier='silver'; lootSilver--; }
+  else if(lootBronze>0){ tier='bronze'; lootBronze--; }
+  else return null;
+
+  const o = oddsForTier(tier);
+  const rarity = drawRarity(o, pityRare, pityEpic);
+  pityRare++; pityEpic++;
+  if(rarity==='Rare'){ pityRare=0; }
+  if(rarity==='Epic' || rarity==='Legendary'){ pityEpic=0; pityRare=0; }
+
+  const pool = BRAINROT.filter(c=>c.tier===rarity);
+  const card = pool[Math.floor(Math.random()*pool.length)];
+
+  if(!collection[card.name]) collection[card.name]=0;
+  let dup = false;
+  if(collection[card.name]>0){ dup = true; dust += DUST_VALUE[rarity]; }
+  collection[card.name] += 1;
+
+  saveStore(); renderLoot(); renderCollection();
+
+  return {tier, rarity, card:card.name, dup, dustGained: dup?DUST_VALUE[rarity]:0};
+}
+function openN(n){
+  const res=[];
+  for(let i=0;i<n;i++){
+    const r = openOne();
+    if(!r) break;
+    res.push(r);
+  }
+  return res;
+}
+$('openOneBtn')?.addEventListener('click', ()=>{
+  const r = openN(1);
+  showOpenResult(r);
+});
+$('openFiveBtn')?.addEventListener('click', ()=>{
+  const r = openN(5);
+  showOpenResult(r);
+});
+$('openAllBtn')?.addEventListener('click', ()=>{
+  const total = lootBronze+lootSilver+lootGold;
+  const r = openN(total);
+  showOpenResult(r);
+});
+function showOpenResult(list){
+  const box=$('openResult'); if(!box) return;
+  if(!list || !list.length){ box.textContent='Ingen kister å åpne.'; return; }
+  const lines = list.map(x=>{
+    const cls = x.rarity==='Legendary'?'leg':x.rarity==='Epic'?'epic':x.rarity==='Rare'?'rare':'';
+    const dupTxt = x.dup?` (duplikat → +${x.dustGained} støv)`:``;
+    const tierTxt = x.tier==='gold'?'Gull':x.tier==='silver'?'Sølv':'Bronse';
+    return `${tierTxt}: <span class="${cls}">${x.rarity}</span> – ${x.card}${dupTxt}`;
+  });
+  box.innerHTML = lines.join('<br>');
+}
+
+/* ========= Loot: kister fra RPM (hver 5. over 15) ========= */
+function grantChestsFromRPM(rpm){
+  if(!lootOn) return;
+  let n = 0;
+  if(rpm >= 15) {
+    n = 1 + Math.floor((rpm - 15) / 5);
+    n = Math.min(n, 10); // maksgrense
+  }
+  if(n <= 0) return;
+
+  let tier = 'bronze';
+  if(rpm >= 50) tier = 'gold';
+  else if(rpm >= 30) tier = 'silver';
+
+  if(tier === 'gold') lootGold += n;
+  else if(tier === 'silver') lootSilver += n;
+  else lootBronze += n;
+
+  saveStore(); renderLoot();
+
+  $('runFeedback').textContent =
+    `Du fikk ${n} ${tier==='gold'?'Gull':tier==='silver'?'Sølv':'Bronse'}-kist${n>1?'er':''}!`;
+}
+
+/* ========= Resultater (kumulativ sum koblet til raden) ========= */
 function renderResults(){
   const body=$('resultsBody');
+
+  // summer fra eldst (bunn) opp, så hver rad viser sum til og med denne runden
   const sums=[]; let acc=0;
-  for(let i=0;i<results.length;i++){ acc += (+results[i].add||0); sums[i]=acc; }
+  for(let i=results.length-1;i>=0;i--){ acc += (+results[i].add||0); sums[i]=acc; }
+
   body.innerHTML = results.map((r,i)=>`
     <tr>
       <td>${r.time}</td>
@@ -625,7 +930,8 @@ function renderResults(){
       <td class="right bank">${sums[i]}</td>
     </tr>
   `).join('');
-  $('bankTotal').textContent = sums[results.length-1] || 0;
+
+  $('bankTotal').textContent = acc || 0;
   $('bestRpm').textContent  = bestRPM.toFixed(1);
   $('lastRpm').textContent = results[0] ? (Number(results[0].rpm).toFixed(1)) : '0.0';
 }
@@ -646,7 +952,7 @@ $('goalInput').addEventListener('change',()=>{
   const v=$('goalInput').value.trim(); goalRPM = v==='' ? null : Math.max(1, Math.min(200, +v)); saveStore();
 });
 
-/* ========= Mobil-tastatur (0–9, ⌫, OK) ========= */
+/* ========= Mobil-tastatur ========= */
 (function buildKeypad(){
   const keys = ['1','2','3','4','5','6','7','8','9','0','⌫','OK'];
   const frag = document.createDocumentFragment();
@@ -672,6 +978,48 @@ $('goalInput').addEventListener('change',()=>{
   });
 })();
 
+/* ========= Brainrot UI toggle ========= */
+$('toggleMineOnly')?.addEventListener('change',()=>renderCollection());
+function updateBrainrotUI(){
+  const card = $('collectionCard');
+  if(card) card.style.display = brainrotOn ? '' : 'none';
+}
+
+/* ========= Avslutt omgang ========= */
+function finishRun(){
+  const endRef=paused?pauseStart:Date.now();
+  const elapsed=Math.max(0,(endRef-startMs-pauseAccum)/1000);
+  const rpm = elapsed>0 ? (correct/(elapsed/60)) : 0;
+  const base=Math.floor(rpm), bonus=bonusForRPM(rpm), add=(isFinite(base)?base:0) + (isFinite(bonus)?bonus:0);
+  const newRecord=rpm>bestRPM, goalHit=(goalRPM!=null && rpm>=goalRPM);
+  running=false; clearInterval(tickTimer);
+  bankTotal += add; if(newRecord) bestRPM=rpm;
+
+  const usedFamIds=new Set(); for(let i=0;i<idx;i++){ const it=queue[i]; if(it&&it.fam) usedFamIds.add(it.fam); }
+  const fams=[...usedFamIds].map(famLabel).join(' | ');
+  const modeLabel=mode==='add'?'Pluss/Minus':'Gange/Dele';
+
+  results.unshift({ time:ts(), mode:modeLabel, fams, correct, wrong,
+    dur:Math.round(sessionDur===0?elapsed:Math.min(sessionDur,elapsed)),
+    rpm:+(isFinite(rpm)?rpm.toFixed(1):'0'), bonus, add });
+
+  $('lastRpm').textContent = rpm.toFixed(1);
+
+  renderResults(); updateHUD(); saveStore();
+
+  const msg =
+    newRecord && goalHit ? 'Ny personlig rekord og mål nådd.' :
+    newRecord ? 'Ny personlig rekord.' :
+    goalHit ? 'Mål nådd.' : `Ferdig – RPM: ${rpm.toFixed(1)}`;
+  $('runFeedback').textContent = msg;
+  $('eq').innerHTML=`<span class="cell" style="font-size:clamp(18px,3vw,32px)">Klar for ny omgang – trykk Start</span>`;
+  clearHint();
+
+  if(brainrotOn){ awardCardsWithSigma(rpm); }
+  grantChestsFromRPM(rpm); // kister fra RPM (hver 5. over 15)
+  renderLoot();
+}
+
 /* ========= Init ========= */
 function init(){
   loadStore();
@@ -681,6 +1029,9 @@ function init(){
 
   renderFamilySections();
   renderResults();
+  renderCollection();
+  updateBrainrotUI();
+  renderLoot();
 
   const activeBtn = document.querySelector('#durChips .chip.active');
   const d = Number(activeBtn && activeBtn.dataset ? activeBtn.dataset.dur : 60);
