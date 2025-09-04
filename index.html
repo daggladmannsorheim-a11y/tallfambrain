@@ -35,10 +35,11 @@
 
   .time-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .time-big{font-variant-numeric:tabular-nums;font-size:26px;font-weight:800}
-  .progress{height:12px;background:var(--bar);border-radius:999px;overflow:hidden;outline:1px solid #334155}
+  .progress{height:12px;background:var(--bar);border-radius:999px;overflow:hidden;outline:1px solid #334155; margin:12px 0 16px;}
   .bar{height:100%;width:0%;background:linear-gradient(90deg,#22c55e,#16a34a);transition:width .2s ease}
 
-  .stage{min-height:140px;display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(1200px 300px at 50% -40%, #22c55e1f, transparent 60%);padding:8px}
+  .stage{display:flex;align-items:center;justify-content:center;text-align:center;background:radial-gradient(1200px 300px at 50% -40%, #22c55e1f, transparent 60%);padding:12px;border-radius:12px}
+  .stage--tight{min-height:110px}
   .eq{width:100%;display:flex;align-items:center;justify-content:center;gap:12px;font-size:clamp(28px,5vw,56px);user-select:none}
   .cell{display:inline-flex;align-items:center;justify-content:center;min-width:1.2em}
   .op,.eqsign{opacity:.95}
@@ -47,6 +48,9 @@
   .numbox.err{border-color:#ef4444;background:#3b0a0a;color:#fecaca}
   .numbox::-webkit-outer-spin-button,.numbox::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   input.numbox{-moz-appearance:textfield}
+
+  .hint{margin-top:10px;font-size:14px;color:#a3e635;opacity:.95}
+  .hint small{color:#93c5fd}
 
   table{width:100%;border-collapse:collapse;font-size:14px;background:#0b1223;border-radius:12px;overflow:hidden}
   thead th{text-align:left;padding:10px;background:#0f172a;color:#cbd5e1;border-bottom:1px solid #22314a;position:sticky;top:0;z-index:1}
@@ -83,9 +87,43 @@
   .key{background:#0b1223;border:1px solid var(--ring);border-radius:12px;padding:12px 0;font-weight:900;font-size:18px;cursor:pointer;color:#e5e7eb}
   .key:active{transform:translateY(1px) scale(.99)}
 
-  /* feilbanner */
   #errbar{position:fixed;left:0;right:0;top:0;background:#7f1d1d;color:#fee2e2;border-bottom:2px solid #ef4444;
     padding:8px 12px;font-size:13px;display:none;z-index:9999}
+
+  /* oppgavefelt + "Siste RPM" oppe ved tidtaking */
+  .playbelt{
+    display:grid;
+    grid-template-columns: 1fr 280px;
+    gap:12px;
+    margin-top:12px;
+    align-items:stretch;
+  }
+  @media (max-width:900px){
+    .playbelt{ grid-template-columns: 1fr; }
+  }
+  .sideStat{
+    background:#0b1223;
+    border:1px solid var(--ring);
+    border-radius:12px;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    gap:6px;
+  }
+  .sideStat__label{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:.3px;
+  }
+  .sideStat__value{
+    font-variant-numeric:tabular-nums;
+    font-weight:900;
+    font-size:28px;
+    color:#fcd34d;
+  }
+
+  #rpm{display:none;}
 </style>
 </head>
 <body>
@@ -110,6 +148,7 @@
       </div>
     </div>
 
+    <!-- TID + OPPGAVE + SISTE RPM -->
     <div class="card">
       <div class="time-row">
         <div class="row">
@@ -125,9 +164,28 @@
         <div class="time-big" id="timeLeft">01:00</div>
       </div>
       <div class="progress" id="progressWrap"><div id="timeBar" class="bar"></div></div>
+
+      <div class="playbelt">
+        <div>
+          <div class="stage stage--tight">
+            <div id="eq" class="eq">
+              <span class="cell" style="font-size:clamp(18px,3vw,30px);opacity:.9">
+                Velg tallfamilie(er) og trykk Start
+              </span>
+            </div>
+          </div>
+          <div id="hint" class="hint" aria-live="polite"></div>
+        </div>
+        <div class="sideStat">
+          <div class="sideStat__label">Siste RPM</div>
+          <div id="lastRpm" class="sideStat__value">0.0</div>
+        </div>
+      </div>
     </div>
 
+    <!-- KONTROLLER -->
     <div class="card" style="display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
+      <button id="startBtn" class="btn primary" type="button">Start (Enter)</button>
       <button id="pauseBtn" class="btn warn" type="button">Pause / Fortsett (Space)</button>
       <button id="stopBtn"  class="btn stop" type="button">Stopp (S)</button>
       <button id="resetBtn" class="btn stop" type="button" title="Slett alle lagrede resultater">Slett alt</button>
@@ -167,20 +225,6 @@
       </div>
     </div>
     <div id="famSections"></div>
-  </div>
-
-  <!-- SPILL -->
-  <div class="card">
-    <div class="stage">
-      <div id="eq" class="eq">
-        <span class="cell" style="font-size:clamp(18px,3vw,30px);opacity:.9">
-          Velg tallfamilie(er) og trykk Start
-        </span>
-      </div>
-    </div>
-    <div style="display:flex;justify-content:center;margin-top:8px">
-      <button id="startBtn" class="btn primary big" type="button">Start (Enter)</button>
-    </div>
   </div>
 
   <!-- MOBIL-TASTATUR -->
@@ -378,6 +422,7 @@ $('famBjork').addEventListener('click',()=>selectByDiff('bjork'));
 /* ========= Game state ========= */
 let running=false, paused=false, sessionDur=60, startMs=0, pauseAccum=0, pauseStart=0, tickTimer=null;
 let correct=0, wrong=0, idx=0, queue=[], currentSolution=0, currentItem=null;
+let hintTimer=null; // ny: timer for hint
 const getElapsed = () => !startMs ? 0 : (((paused?pauseStart:Date.now())-startMs)-pauseAccum)/1000;
 
 /* ========= HUD ========= */
@@ -388,7 +433,7 @@ function updateHUD(){
   $('rpm').textContent=rpm.toFixed(1);
   $('bankTotal').textContent=String(bankTotal);
   $('bestRpm').textContent=bestRPM.toFixed(1);
-  $('goalState').style.display=(goalRPM!=null && rpm>goalRPM)?'inline':'none';
+  $('goalState').style.display=(goalRPM!=null && rpm>=goalRPM)?'inline':'none';
 
   if(sessionDur===0){
     $('timeLeft').textContent = fmtTime(e);
@@ -405,6 +450,9 @@ function updateHUD(){
 /* ========= Oppgaver ========= */
 function renderInput(){ return `<input id="ansInput" class="numbox" type="text" inputmode="numeric" autocomplete="off" pattern="[0-9]*">`; }
 function setEquation(item){
+  // nullstill hint
+  clearHint();
+
   currentItem=item; const [x,y,z]=item.pattern; const sign=item.op;
   const missIndex=Math.floor(Math.random()*3);
   $('eq').innerHTML=[
@@ -415,23 +463,52 @@ function setEquation(item){
     missIndex===2?renderInput():`<span class="cell">${z}</span>`
   ].join('');
   currentSolution=[x,y,z][missIndex];
+
+  // start hint-timer (3 sek)
+  startHintTimer();
+
   const inp=$('ansInput');
   if(inp){
     const blockKeys = e => { if(['ArrowUp','ArrowDown','PageUp','PageDown'].includes(e.key)) e.preventDefault(); };
     const blockWheel = e => e.preventDefault();
     inp.addEventListener('keydown', blockKeys, {passive:false});
     inp.addEventListener('wheel', blockWheel, {passive:false});
-    inp.addEventListener('input', () => { inp.value = inp.value.replace(/\D+/g,'').slice(0,3); onType(); });
+    inp.addEventListener('input', () => {
+      inp.value = inp.value.replace(/\D+/g,'').slice(0,3);
+      onType();
+    });
+    inp.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); submitAnswer(); }
+    });
     inp.focus({preventScroll:true});
   }
 }
 function onType(){
-  if(!running||paused) return;
-  const inp=$('ansInput'); if(!inp) return;
-  const v=inp.value.trim(); if(v==='') return;
-  if(+v===currentSolution || v.length>=2 || v==='0'){ submitAnswer(); }
+  if(!running || paused) return;
+  const inp = $('ansInput'); if(!inp) return;
+  const v = inp.value.trim();
+  if(v==='') return;
+  const need = String(currentSolution).length;
+  if (v.length >= need || +v === currentSolution) {
+    submitAnswer();
+  }
 }
 function markInput(ok){ const inp=$('ansInput'); if(!inp) return; inp.classList.remove('ok','err'); inp.classList.add(ok?'ok':'err'); }
+
+/* ======== Hint-funksjoner ======== */
+function startHintTimer(){
+  if(hintTimer) clearTimeout(hintTimer);
+  hintTimer = setTimeout(()=>{
+    if(!running || paused) return;
+    // vis svaret som hint under oppgaven
+    const hint = $('hint');
+    hint.innerHTML = `<small>Hint:</small> ${currentSolution}`;
+  }, 3000);
+}
+function clearHint(){
+  if(hintTimer){ clearTimeout(hintTimer); hintTimer=null; }
+  const hint = $('hint'); if(hint) hint.textContent = '';
+}
 
 function buildQueueFromSelection(){
   const list=familiesForMode(mode), sel=selectionSet();
@@ -449,14 +526,16 @@ function submitAnswer(){
   const ok=(+val===currentSolution);
   if(ok){ correct++; markInput(true); }
   else { wrong++; markInput(false); queue.splice(idx+1,0,currentItem,currentItem,currentItem); }
-  idx++; setTimeout(nextItem,70); updateHUD();
+  idx++;
+  clearHint(); // fjern hint ved svar
+  setTimeout(nextItem,70); updateHUD();
 }
 
 /* ========= Start/Stop + nedtelling ========= */
 $('startBtn').addEventListener('click',()=>{ if(!running) startCountdown(); });
 $('pauseBtn').addEventListener('click',()=>{ if(!running) return; if(!paused){ paused=true; pauseStart=Date.now(); $('runFeedback').textContent='Pauset'; } else { paused=false; pauseAccum += Date.now()-pauseStart; pauseStart=0; $('runFeedback').textContent=''; } });
 $('stopBtn').addEventListener('click',()=>{ if(!running) return; finishRun(); });
-$('resetBtn').addEventListener('click',()=>{ if(!confirm('Slette alle lagrede resultater og bank?')) return; bankTotal=0; bestRPM=0; results=[]; renderResults(); updateHUD(); saveStore(); });
+$('resetBtn').addEventListener('click',()=>{ if(!confirm('Slette alle lagrede resultater og bank?')) return; bankTotal=0; bestRPM=0; results=[]; renderResults(); updateHUD(); saveStore(); $('lastRpm').textContent='0.0'; clearHint(); });
 
 function startCountdown(){
   $('overlay').style.display='grid'; let t=3; $('count').textContent=t;
@@ -471,6 +550,7 @@ function beginRun(){
   queue=buildQueueFromSelection(); $('timeBar').style.width='0%';
   if(sessionDur===0){ $('progressWrap').style.visibility='hidden'; $('timeLeft').textContent='00:00'; }
   if(queue.length===0){ running=false; return; }
+  clearHint();
   nextItem();
   if(tickTimer) clearInterval(tickTimer);
   tickTimer=setInterval(()=>{ if(!running||paused) return; updateHUD(); if(sessionDur>0 && getElapsed()>=sessionDur){ finishRun(); } },100);
@@ -480,7 +560,7 @@ function finishRun(){
   const elapsed=Math.max(0,(endRef-startMs-pauseAccum)/1000);
   const rpm = elapsed>0 ? (correct/(elapsed/60)) : 0;
   const base=Math.floor(rpm), bonus=bonusForRPM(rpm), add=(isFinite(base)?base:0) + (isFinite(bonus)?bonus:0);
-  const newRecord=rpm>bestRPM, goalHit=(goalRPM!=null && rpm>goalRPM);
+  const newRecord=rpm>bestRPM, goalHit=(goalRPM!=null && rpm>=goalRPM);
   running=false; clearInterval(tickTimer);
   bankTotal += add; if(newRecord) bestRPM=rpm;
 
@@ -493,14 +573,29 @@ function finishRun(){
     dur:Math.round(sessionDur===0?elapsed:Math.min(sessionDur,elapsed)),
     rpm:+(isFinite(rpm)?rpm.toFixed(1):'0'), bonus, add });
 
+  $('lastRpm').textContent = rpm.toFixed(1);
+
   renderResults(); updateHUD(); saveStore();
 
-  const msg = newRecord && goalHit ? 'Ny personlig rekord og mål nådd.' : newRecord ? 'Ny personlig rekord.' : goalHit ? 'Mål nådd.' : '';
+  const msg =
+    newRecord && goalHit ? 'Ny personlig rekord og mål nådd.' :
+    newRecord ? 'Ny personlig rekord.' :
+    goalHit ? 'Mål nådd.' : `Ferdig – RPM: ${rpm.toFixed(1)}`;
   $('runFeedback').textContent = msg;
   $('eq').innerHTML=`<span class="cell" style="font-size:clamp(18px,3vw,32px)">Klar for ny omgang – trykk Start</span>`;
+  clearHint();
 
   if(brainrotOn){
-    const names=[ "Bombardiro Crocodilo","Bombombini Gusini","Capuccino Assassino","Tralalero Tralala","Ananitto Giraffini","Anpali Babbel","Ballerina Cappucina","Ballerino Lololo","Ballerino Loro","Bananita Dolfinita","Blueberrini Tatticini","Blueberrinni Octopussini","Bobrelli Bananelli","Bobrito Bandito","Boneca Ambalabu","Brr Brr Gangster Gusini","Brr Brr Patapim","Brr Es Teh Patipum","Bublicito Bandito Traktorito","Bulliccinni Bananini","Cannelloni Dragoni","Capybarelli Bananalelli","Carloooooo Carlooooo!","Chai Maestro","Chimpanzini Bananini","Cocosino Rhino","Cocossini Mama","Crabito Cocosito","Crocodildo Penisini","Crocodillo Ananasinno","Don Don Don Satur","Ecco Cavallo Virtuoso","Elephantuchi Bananuchi","Espressona Signora","Flamingulli-gulli-gulli","Frigo Camelo","Frulli Frulla","Tric Trac Baraboom","Burbaloni Lulilolli","Orangutini Ananasini","Ganganzelli Trulala","Garamararamararaman","Girafa Celeste","Glorbo Fruttodrillo","Gorillini Bananini","Gorillo Watermellondrillo","Graipussi Medussi","Il Cacto Hipopotamo","Il sacro cabrospaghetti mistico","Ketupat Kepat Prekupat","Kiwitto Banditto","La Esok Sekolah","La Vaca Saturno Saturnita","La Vaca Trippa Troppa Bombombini Gusini Tralala Lirilira Tung Tung Sahur boneka","Leonelli Cactuselli","Lirilì Larilà","Makakini Bananini","Mangolini Parrocini","Matteooooooooooooo","Nuclearo Dinossauro","Orcaleritos","Orcalero Orcala","Pandaccini Bananini","Penguino Cocosino","Perochello Lemonchello","PiPi Kiwi","Piccione Macchina","Pipi Strawberry","Pot Hotspot" ];
+    const names=[
+      "Tralalero Tralala","Ballerina Cappucina","Capybarelli Bananalelli","Chimpanzini Bananini",
+      "Penguino Cocosino","Gorillini Bananini","Cannelloni Dragoni","Blueberrini Tatticini",
+      "Ecco Cavallo Virtuoso","Frulli Frulla","Piccione Macchina","Kiwitto Banditto",
+      "La Vaca Saturno","Orcalero Orcala","Leonelli Cactuselli","Bobrelli Bananelli",
+      "Chai Maestro","Nuclearo Dinossauro","Girafa Celeste","Espressona Signora",
+      "Flamingulli Gulli","Tric Trac Baraboom","Frigo Camelo","Burbaloni Lulilolli",
+      "Ananitto Giraffini","Brr Brr Patapim","Il Cacto Ippopotamo","Gorillo Watermellondrillo",
+      "Graipussi Medussi","Pot Hotspot"
+    ];
     const name = names[Math.floor(Math.random()*names.length)];
     const phrase=`Bra jobba, du er like sigma som ${name}!`;
     const backdrop=$('sigmaBackdrop'), text=$('sigmaText');
@@ -511,11 +606,11 @@ function finishRun(){
   }
 }
 
-/* ========= Results (kumulativ bank) ========= */
+/* ========= Results (kumulativ bank nedover, nyeste øverst) ========= */
 function renderResults(){
   const body=$('resultsBody');
   const sums=[]; let acc=0;
-  for(let i=results.length-1;i>=0;i--){ acc += (+results[i].add||0); sums[i]=acc; }
+  for(let i=0;i<results.length;i++){ acc += (+results[i].add||0); sums[i]=acc; }
   body.innerHTML = results.map((r,i)=>`
     <tr>
       <td>${r.time}</td>
@@ -530,8 +625,9 @@ function renderResults(){
       <td class="right bank">${sums[i]}</td>
     </tr>
   `).join('');
-  $('bankTotal').textContent = sums[0] || 0;
+  $('bankTotal').textContent = sums[results.length-1] || 0;
   $('bestRpm').textContent  = bestRPM.toFixed(1);
+  $('lastRpm').textContent = results[0] ? (Number(results[0].rpm).toFixed(1)) : '0.0';
 }
 
 /* ========= Varighet ========= */
@@ -550,18 +646,29 @@ $('goalInput').addEventListener('change',()=>{
   const v=$('goalInput').value.trim(); goalRPM = v==='' ? null : Math.max(1, Math.min(200, +v)); saveStore();
 });
 
-/* ========= Mobil-tastatur ========= */
+/* ========= Mobil-tastatur (0–9, ⌫, OK) ========= */
 (function buildKeypad(){
-  const frag=document.createDocumentFragment();
-  for(let n=0;n<=20;n++){
-    const b=document.createElement('button'); b.type='button'; b.className='key'; b.textContent=String(n); b.dataset.val=n;
+  const keys = ['1','2','3','4','5','6','7','8','9','0','⌫','OK'];
+  const frag = document.createDocumentFragment();
+  keys.forEach(k=>{
+    const b=document.createElement('button');
+    b.type='button'; b.className='key'; b.textContent=k; b.dataset.key=k;
     frag.appendChild(b);
-  }
+  });
+  $('keypad').innerHTML='';
   $('keypad').appendChild(frag);
+
   $('keypad').addEventListener('click',e=>{
-    const btn=e.target.closest('.key'); if(!btn||!running||!$('ansInput')||paused) return;
-    const inp=$('ansInput'); if(inp) inp.value=btn.dataset.val;
-    submitAnswer();
+    const btn=e.target.closest('.key'); if(!btn||!running||paused) return;
+    const k=btn.dataset.key; const inp=$('ansInput'); if(!inp) return;
+
+    if(k==='OK'){ submitAnswer(); return; }
+    if(k==='⌫'){ inp.value = (inp.value||'').slice(0,-1); onType(); return; }
+    if(/\d/.test(k)){
+      const next=(inp.value||'') + k;
+      inp.value = next.slice(0,3);
+      onType();
+    }
   });
 })();
 
@@ -575,13 +682,11 @@ function init(){
   renderFamilySections();
   renderResults();
 
-  // Sett tidstekst etter valgt chip
   const activeBtn = document.querySelector('#durChips .chip.active');
   const d = Number(activeBtn && activeBtn.dataset ? activeBtn.dataset.dur : 60);
   $('timeLeft').textContent = (d===0)?'00:00':fmtTime(d);
   $('progressWrap').style.visibility=(d===0)?'hidden':'visible';
 
-  // hurtigtaster
   document.addEventListener('keydown',e=>{
     const k=e.key;
     if(k==='Enter'){ e.preventDefault(); if(!running) $('startBtn').click(); }
